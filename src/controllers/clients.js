@@ -1,7 +1,6 @@
-const schemaAddClientValidation = require("../schemas/schemaAddClientValidation");
 const utilities = require("../validations/utilities");
 
-const addClient = async (req, res) => {
+async function addClient(req, res) {
   const {
     nome,
     email,
@@ -14,13 +13,20 @@ const addClient = async (req, res) => {
     cidade,
     estado,
   } = req.body;
-  const { id } = req.usuario;
+  const { id } = req.user;
 
   try {
-    await schemaAddClientValidation.validate(req.body);
-    await utilities.validarEmail(email, "clientes");
+    await utilities.nameValidation(nome);
+    await utilities.emailIsValid(email, "clientes");
+    await utilities.emailValidation(email);
+    await utilities.cpfValidation(cpf);
+    await utilities.phoneValidation(telefone);
 
-    const cliente = await utilities.cadastrarNovoCliente(
+    if (cep) {
+      await utilities.cepValidation(cep);
+    }
+
+    const client = await utilities.signUpNewClient(
       id,
       nome,
       email,
@@ -34,11 +40,11 @@ const addClient = async (req, res) => {
       estado
     );
 
-    return res.status(200).json(cliente[0]);
+    return res.status(200).json(client[0]);
   } catch (error) {
     return res.status(400).json(error.message);
   }
-};
+}
 
 module.exports = {
   addClient,
