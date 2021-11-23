@@ -12,15 +12,15 @@ async function authentication(req, res, next) {
   try {
     const token = authorization.replace("Bearer ", "").trim();
     const { id } = jwt.verify(token, authToken);
-    const usuarioExiste = await knex("usuarios").where({ id }).first();
+    const searchUser = await knex("usuarios").where({ id }).first();
 
-    if (!usuarioExiste) {
+    if (!searchUser) {
       return res.status(404).json("Usuario não encontrado");
     }
 
-    const { senha: _, ...usuario } = usuarioExiste;
+    const { senha: _, ...user } = searchUser;
 
-    req.usuario = usuario;
+    req.user = user;
 
     next();
   } catch (error) {

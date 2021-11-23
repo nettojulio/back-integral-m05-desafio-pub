@@ -1,17 +1,17 @@
 const knex = require("../connections/db_connections");
 
-async function validarEmail(emailUsuario, database) {
-  const usuario = await knex(database)
+async function emailIsValid(emailUsuario, database) {
+  const user = await knex(database)
     .where({ email: emailUsuario })
     .first()
     .debug();
-  if (usuario) {
+  if (user) {
     throw new Error("O email já existe!");
   }
 }
 
-async function cadastrarNovoUsuario(nomeUsuario, emailUsuario, senhaUsuario) {
-  const usuario = await knex("usuarios")
+async function signUpNewUser(nomeUsuario, emailUsuario, senhaUsuario) {
+  const user = await knex("usuarios")
     .insert({
       nome: nomeUsuario,
       email: emailUsuario,
@@ -19,36 +19,33 @@ async function cadastrarNovoUsuario(nomeUsuario, emailUsuario, senhaUsuario) {
     })
     .returning("*");
 
-  if (!usuario) {
+  if (!user) {
     throw new Error("O usuário não foi cadastrado.");
   }
 
-  return usuario;
+  return user;
 }
 
-async function verificarUsuarioLogin(emailUsuario) {
-  const usuario = await knex("usuarios")
+async function checkUserSignIn(emailUsuario) {
+  const user = await knex("usuarios")
     .where({ email: emailUsuario })
     .first()
     .debug();
-  if (!usuario) {
+  if (!user) {
     throw new Error("Email e/ou senha não confere!");
   }
-  return usuario;
+  return user;
 }
 
-async function verificarUsuarioPeloId(idUsuario) {
-  const usuario = await knex("usuarios")
-    .where({ id: idUsuario })
-    .first()
-    .debug();
-  if (!usuario) {
+async function checkUserById(idUsuario) {
+  const user = await knex("usuarios").where({ id: idUsuario }).first().debug();
+  if (!user) {
     throw new Error("Usuario não encontrado!");
   }
-  return usuario;
+  return user;
 }
 
-async function atualizarUsuarioExistente(
+async function updateRegisteredUser(
   nome,
   email,
   senha,
@@ -56,26 +53,35 @@ async function atualizarUsuarioExistente(
   telefone,
   idUsuario
 ) {
-  const usuario = await knex("usuarios")
-    .update({
-      nome: nome,
-      email: email,
-      senha: senha,
-      cpf: cpf,
-      telefone: telefone,
-    })
+  const schema = senha
+    ? {
+        nome,
+        email,
+        senha,
+        cpf,
+        telefone,
+      }
+    : {
+        nome,
+        email,
+        cpf,
+        telefone,
+      };
+
+  const user = await knex("usuarios")
+    .update(schema)
     .where({ id: idUsuario })
     .returning("*")
     .debug();
 
-  if (!usuario) {
+  if (!user) {
     throw new Error("O usuario não foi atualizado!");
   }
 
-  return usuario[0];
+  return user[0];
 }
 
-async function cadastrarNovoCliente(
+async function signUpNewClient(
   id,
   nome,
   email,
@@ -88,7 +94,7 @@ async function cadastrarNovoCliente(
   cidade,
   estado
 ) {
-  const cliente = await knex("clientes")
+  const client = await knex("clientes")
     .insert({
       id_usuario: id,
       nome: nome,
@@ -104,18 +110,84 @@ async function cadastrarNovoCliente(
     })
     .returning("*");
 
-  if (!cliente) {
+  if (!client) {
     throw new Error("Cliente não cadastrado.");
   }
 
-  return cliente;
+  return client;
+}
+
+async function nameValidation(nome) {
+  if (!nome) {
+    throw new Error("Nome é uma informação obrigatória.");
+  }
+
+  if (typeof nome !== "string") {
+    throw new Error("Inserção de caracteres inválidas.");
+  }
+
+  if (!nome.trim()) {
+    throw new Error("Nome deve conter caracteres válidos.");
+  }
+}
+
+async function emailValidation(email) {
+  if (!email) {
+    throw new Error("Email é uma informação obrigatória.");
+  }
+
+  if (typeof email !== "string") {
+    throw new Error("Inserção de caracteres inválidas.");
+  }
+
+  if (!email.trim()) {
+    throw new Error("Email deve conter caracteres válidos.");
+  }
+
+  if (!email.includes("@") || !email.includes(".") || email.length < 8) {
+    throw new Error("Email inválido para cadastro!");
+  }
+}
+
+async function passwordValidation(senha) {
+  if (typeof senha !== "string" || !senha.trim() || senha.trim().length < 6) {
+    throw new Error("Senha inválida! Inferior a 6 caracteres.");
+  }
+}
+
+async function cpfValidation(cpf) {
+  if (typeof cpf !== "string" || cpf.trim().length !== 11 || isNaN(cpf)) {
+    throw new Error("CPF inválido! CPF é composto por 11 dígitos numéricos.");
+  }
+}
+
+async function phoneValidation(telefone) {
+  if (
+    typeof telefone !== "string" ||
+    telefone.trim().length < 10 ||
+    isNaN(telefone)
+  ) {
+    throw new Error("Telefone inválido! Informe DDD + Número válido.");
+  }
+}
+
+async function cepValidation(cep) {
+  if (typeof cep !== "string" || cep.trim().length !== 8 || isNaN(cep)) {
+    throw new Error("CEP inválido! CEP é composto por 8 números.");
+  }
 }
 
 module.exports = {
-  validarEmail,
-  cadastrarNovoUsuario,
-  verificarUsuarioLogin,
-  verificarUsuarioPeloId,
-  atualizarUsuarioExistente,
-  cadastrarNovoCliente,
+  emailIsValid,
+  signUpNewUser,
+  checkUserSignIn,
+  checkUserById,
+  updateRegisteredUser,
+  signUpNewClient,
+  nameValidation,
+  emailValidation,
+  passwordValidation,
+  cpfValidation,
+  phoneValidation,
+  cepValidation,
 };

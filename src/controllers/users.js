@@ -2,12 +2,12 @@ const bcrypt = require("bcrypt");
 const utilities = require("../validations/utilities");
 
 async function currentUser(req, res) {
-  return res.status(200).json(req.usuario);
+  return res.status(200).json(req.user);
 }
 
 async function userUpdate(req, res) {
   let { nome, email, senha, cpf, telefone } = req.body;
-  const { id } = req.usuario;
+  const { id } = req.user;
 
   if (!nome && !email && !senha && !cpf && telefone) {
     return res
@@ -16,17 +16,31 @@ async function userUpdate(req, res) {
   }
 
   try {
-    await utilities.verificarUsuarioPeloId(id);
+    await utilities.checkUserById(id);
+
+    if (nome !== req.user.nome) {
+      await utilities.nameValidation(nome);
+    }
+
+    if (email !== req.user.email) {
+      await utilities.emailIsValid(email, "usuarios");
+      await utilities.emailValidation(email);
+    }
 
     if (senha) {
+      await utilities.passwordValidation(senha);
       senha = await bcrypt.hash(senha, 10);
     }
 
-    if (email !== req.usuario.email) {
-      await utilities.validarEmail(email, "usuarios");
+    if (cpf) {
+      await utilities.cpfValidation(cpf);
     }
-
-    await utilities.atualizarUsuarioExistente(
+    
+    if (telefone) {
+      await utilities.phoneValidation(telefone);
+    }
+    
+    await utilities.updateRegisteredUser(
       nome,
       email,
       senha,
