@@ -1,5 +1,3 @@
-CREATE DATABASE desafio_05;
-
 DROP TABLE IF EXISTS transacoes;
 DROP TABLE IF EXISTS clientes;
 DROP TABLE IF EXISTS usuarios;

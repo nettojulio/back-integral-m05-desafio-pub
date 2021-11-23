@@ -1,4 +1,4 @@
-const yup = require('yup');
+const yup = require("yup");
 const { pt } = require("yup-locales");
 const { setLocale } = require("yup");
 setLocale(pt);
