@@ -1,7 +1,7 @@
 const schemaAddClientValidation = require("../schemas/schemaAddClientValidation");
 const utilities = require("../validations/utilities");
 
-const addClient = async (req, res) => {
+async function addClient (req, res) {
   const {
     nome,
     email,

@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const utilities = require("../validations/utilities");
 const schemaSignUpValidation = require("../schemas/schemaSignUpValidation");
 
-const signUp = async (req, res) => {
+async function signUp (req, res) {
   const { nome, email, senha } = req.body;
 
   try {
