@@ -7,16 +7,16 @@ const signUp = async (req, res) => {
 
   try {
     await schemaSignUpValidation.validate(req.body);
-    await utilities.validarEmail(email, "usuarios");
+    await utilities.emailIsValid(email, "usuarios");
 
-    const senhaCriptografada = await bcrypt.hash(senha, 10);
+    const encryptedPassword = await bcrypt.hash(senha, 10);
 
-    const usuario = await utilities.cadastrarNovoUsuario(
+    const user = await utilities.signUpNewUser(
       nome,
       email,
-      senhaCriptografada
+      encryptedPassword
     );
-    const { senha: _, ...sendUser } = usuario[0];
+    const { senha: _, ...sendUser } = user[0];
 
     return res.status(200).json(sendUser);
   } catch (error) {

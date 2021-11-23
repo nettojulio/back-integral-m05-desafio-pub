@@ -1,17 +1,17 @@
 const knex = require("../connections/db_connections");
 
-async function validarEmail(emailUsuario, database) {
-  const usuario = await knex(database)
+async function emailIsValid(emailUsuario, database) {
+  const user = await knex(database)
     .where({ email: emailUsuario })
     .first()
     .debug();
-  if (usuario) {
+  if (user) {
     throw new Error("O email já existe!");
   }
 }
 
-async function cadastrarNovoUsuario(nomeUsuario, emailUsuario, senhaUsuario) {
-  const usuario = await knex("usuarios")
+async function signUpNewUser(nomeUsuario, emailUsuario, senhaUsuario) {
+  const user = await knex("usuarios")
     .insert({
       nome: nomeUsuario,
       email: emailUsuario,
@@ -19,36 +19,36 @@ async function cadastrarNovoUsuario(nomeUsuario, emailUsuario, senhaUsuario) {
     })
     .returning("*");
 
-  if (!usuario) {
+  if (!user) {
     throw new Error("O usuário não foi cadastrado.");
   }
 
-  return usuario;
+  return user;
 }
 
-async function verificarUsuarioLogin(emailUsuario) {
-  const usuario = await knex("usuarios")
+async function checkUserSignIn(emailUsuario) {
+  const user = await knex("usuarios")
     .where({ email: emailUsuario })
     .first()
     .debug();
-  if (!usuario) {
+  if (!user) {
     throw new Error("Email e/ou senha não confere!");
   }
-  return usuario;
+  return user;
 }
 
-async function verificarUsuarioPeloId(idUsuario) {
-  const usuario = await knex("usuarios")
+async function checkUserById(idUsuario) {
+  const user = await knex("usuarios")
     .where({ id: idUsuario })
     .first()
     .debug();
-  if (!usuario) {
+  if (!user) {
     throw new Error("Usuario não encontrado!");
   }
-  return usuario;
+  return user;
 }
 
-async function atualizarUsuarioExistente(
+async function updateRegisteredUser(
   nome,
   email,
   senha,
@@ -56,7 +56,7 @@ async function atualizarUsuarioExistente(
   telefone,
   idUsuario
 ) {
-  const usuario = await knex("usuarios")
+  const user = await knex("usuarios")
     .update({
       nome: nome,
       email: email,
@@ -68,14 +68,14 @@ async function atualizarUsuarioExistente(
     .returning("*")
     .debug();
 
-  if (!usuario) {
+  if (!user) {
     throw new Error("O usuario não foi atualizado!");
   }
 
-  return usuario[0];
+  return user[0];
 }
 
-async function cadastrarNovoCliente(
+async function signUpNewClient(
   id,
   nome,
   email,
@@ -88,7 +88,7 @@ async function cadastrarNovoCliente(
   cidade,
   estado
 ) {
-  const cliente = await knex("clientes")
+  const client = await knex("clientes")
     .insert({
       id_usuario: id,
       nome: nome,
@@ -104,18 +104,18 @@ async function cadastrarNovoCliente(
     })
     .returning("*");
 
-  if (!cliente) {
+  if (!client) {
     throw new Error("Cliente não cadastrado.");
   }
 
-  return cliente;
+  return client;
 }
 
 module.exports = {
-  validarEmail,
-  cadastrarNovoUsuario,
-  verificarUsuarioLogin,
-  verificarUsuarioPeloId,
-  atualizarUsuarioExistente,
-  cadastrarNovoCliente,
+  emailIsValid,
+  signUpNewUser,
+  checkUserSignIn,
+  checkUserById,
+  updateRegisteredUser,
+  signUpNewClient,
 };

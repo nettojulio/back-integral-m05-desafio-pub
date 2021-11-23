@@ -9,19 +9,19 @@ async function signIn(req, res) {
 
   try {
     await schemaSignInValidation.validate(req.body);
-    const usuario = await utilities.verificarUsuarioLogin(email);
-    const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
+    const user = await utilities.checkUserSignIn(email);
+    const correctPassword = await bcrypt.compare(senha, user.senha);
 
-    if (!senhaCorreta) {
+    if (!correctPassword) {
       return res.status(400).json("Email e/ou senha não confere!");
     }
 
-    const token = jwt.sign({ id: usuario.id }, authToken, { expiresIn: "2h" });
+    const token = jwt.sign({ id: user.id }, authToken, { expiresIn: "2h" });
 
-    const { senha: _, ...dadosUsuario } = usuario;
-    dadosUsuario.token = token;
+    const { senha: _, ...userData } = user;
+    userData.token = token;
 
-    return res.status(200).json(dadosUsuario);
+    return res.status(200).json(userData);
   } catch (error) {
     return res.status(400).json(error.message);
   }

@@ -14,13 +14,13 @@ const addClient = async (req, res) => {
     cidade,
     estado,
   } = req.body;
-  const { id } = req.usuario;
+  const { id } = req.user;
 
   try {
     await schemaAddClientValidation.validate(req.body);
-    await utilities.validarEmail(email, "clientes");
+    await utilities.emailIsValid(email, "clientes");
 
-    const cliente = await utilities.cadastrarNovoCliente(
+    const client = await utilities.signUpNewClient(
       id,
       nome,
       email,
@@ -34,7 +34,7 @@ const addClient = async (req, res) => {
       estado
     );
 
-    return res.status(200).json(cliente[0]);
+    return res.status(200).json(client[0]);
   } catch (error) {
     return res.status(400).json(error.message);
   }
