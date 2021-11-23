@@ -18,14 +18,28 @@ async function userUpdate(req, res) {
   try {
     await utilities.checkUserById(id);
 
-    if (senha) {
-      senha = await bcrypt.hash(senha, 10);
+    if (nome !== req.user.nome) {
+      await utilities.nameValidation(nome);
     }
 
     if (email !== req.user.email) {
       await utilities.emailIsValid(email, "usuarios");
+      await utilities.emailValidation(email);
     }
 
+    if (senha) {
+      await utilities.passwordValidation(senha);
+      senha = await bcrypt.hash(senha, 10);
+    }
+
+    if (cpf) {
+      await utilities.cpfValidation(cpf);
+    }
+    
+    if (telefone) {
+      await utilities.phoneValidation(telefone);
+    }
+    
     await utilities.updateRegisteredUser(
       nome,
       email,
