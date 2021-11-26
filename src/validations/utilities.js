@@ -16,6 +16,8 @@ async function signUpNewUser(nomeUsuario, emailUsuario, senhaUsuario) {
       nome: nomeUsuario,
       email: emailUsuario,
       senha: senhaUsuario,
+      cpf: '',
+      telefone: ''
     })
     .returning("*");
 
