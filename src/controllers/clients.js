@@ -18,6 +18,7 @@ async function addClient(req, res) {
   try {
     await utilities.nameValidation(nome);
     await utilities.emailIsValid(email, "clientes");
+    await utilities.cpfIsValid(cpf, "clientes");
     await utilities.emailValidation(email);
     await utilities.cpfValidation(cpf);
     await utilities.phoneValidation(telefone);

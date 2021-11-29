@@ -6,7 +6,14 @@ async function emailIsValid(emailUsuario, database) {
     .first()
     .debug();
   if (user) {
-    throw new Error("O email já existe!");
+    throw new Error("O email já cadastrado");
+  }
+}
+
+async function cpfIsValid(cpfCliente, database) {
+  const user = await knex(database).where({ cpf: cpfCliente }).first().debug();
+  if (user) {
+    throw new Error("CPF já cadastrado");
   }
 }
 
@@ -16,8 +23,8 @@ async function signUpNewUser(nomeUsuario, emailUsuario, senhaUsuario) {
       nome: nomeUsuario,
       email: emailUsuario,
       senha: senhaUsuario,
-      cpf: '',
-      telefone: ''
+      cpf: "",
+      telefone: "",
     })
     .returning("*");
 
@@ -192,4 +199,5 @@ module.exports = {
   cpfValidation,
   phoneValidation,
   cepValidation,
+  cpfIsValid,
 };
