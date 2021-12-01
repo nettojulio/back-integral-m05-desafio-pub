@@ -54,6 +54,14 @@ async function checkUserById(idUsuario) {
   return user;
 }
 
+async function checkClientById(idCliente) {
+  const client = await knex("clientes").where({ id: idCliente }).first().debug();
+  if (!client) {
+    throw new Error("Cliente não encontrado!");
+  }
+  return client;
+}
+
 async function updateRegisteredUser(
   nome,
   email,
@@ -129,6 +137,42 @@ async function signUpNewClient(
 async function getAllClients(){
   const clients = await knex("clientes").select().returning('*').debug();
   return clients
+}
+
+async function updateRegisteredClient( idCliente,
+  nome,
+  email,
+  cpf,
+  telefone,
+  cep,
+  endereco,
+  complemento,
+  bairro,
+  cidade,
+  estado,
+  
+  ){
+  const client = await knex("clientes")
+  .update({
+    nome: nome,
+    email: email,
+    cpf: cpf,
+    telefone: telefone,
+    cep: cep,
+    endereco: endereco,
+    complemento: complemento,
+    bairro: bairro,
+    cidade: cidade,
+    estado: estado && estado.toUpperCase(),
+  }).where({ id: idCliente })
+  .returning("*")
+  .debug();
+
+if (!client) {
+  throw new Error("Cliente não atualizado.");
+}
+
+return client;
 }
 
 async function nameValidation(nome) {
@@ -208,6 +252,7 @@ module.exports = {
   updateRegisteredUser,
   signUpNewClient,
   getAllClients,
+  updateRegisteredClient,
   nameValidation,
   emailValidation,
   passwordValidation,
@@ -216,4 +261,5 @@ module.exports = {
   cepValidation,
   cpfIsValid,
   estadoValidation,
+  checkClientById,
 };
