@@ -76,7 +76,9 @@ async function editClient(req, res) {
   const { id: editUserId } = req.params;
 
   if (!nome && !email && !cpf && !telefone) {
-    throw new Error ("É obrigatório informar ao menos um campo para atualização");
+    return res
+      .status(400)
+      .json("É obrigatório informar ao menos um campo para atualização");
   }
 
   try {
