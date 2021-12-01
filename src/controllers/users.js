@@ -2,16 +2,20 @@ const bcrypt = require("bcrypt");
 const utilities = require("../validations/utilities");
 
 async function currentUser(req, res) {
-  return res.status(200).json(req.user);
+  try {
+    return res.status(200).json(req.user);
+  } catch (error) {
+    return res.status(400).json(error.message);
+  }
 }
 
-async function userUpdate(req, res) {
+async function editUser(req, res) {
   let { nome, email, senha, cpf, telefone } = req.body;
   const { id } = req.user;
 
   if (!nome && !email && !senha && !cpf && !telefone) {
     return res
-      .status(404)
+      .status(400)
       .json("É obrigatório informar ao menos um campo para atualização");
   }
 
@@ -35,19 +39,12 @@ async function userUpdate(req, res) {
     if (cpf) {
       await utilities.cpfValidation(cpf);
     }
-    
+
     if (telefone) {
       await utilities.phoneValidation(telefone);
     }
-    
-    await utilities.updateRegisteredUser(
-      nome,
-      email,
-      senha,
-      cpf,
-      telefone,
-      id
-    );
+
+    await utilities.updateRegisteredUser(nome, email, senha, cpf, telefone, id);
 
     return res.status(200).json("Usuario foi atualizado com sucesso.");
   } catch (error) {
@@ -55,4 +52,4 @@ async function userUpdate(req, res) {
   }
 }
 
-module.exports = { currentUser, userUpdate };
+module.exports = { currentUser, editUser };
