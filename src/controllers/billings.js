@@ -5,7 +5,7 @@ async function addBillings(req, res) {
   const { id: clientId } = req.params;
 
   if (!valor || !data_vencimento || !descricao) {
-    throw new Error ("Favor preencher os campos.");
+    return res.status(400).json("Favor preencher os campos.");
   }
 
   try {
