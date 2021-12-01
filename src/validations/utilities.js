@@ -115,7 +115,7 @@ async function signUpNewClient(
       complemento: complemento,
       bairro: bairro,
       cidade: cidade,
-      estado: estado,
+      estado: estado && estado.toUpperCase(),
     })
     .returning("*");
 
@@ -186,6 +186,15 @@ async function cepValidation(cep) {
   }
 }
 
+async function estadoValidation(estado) {
+  const estados = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RR", "RO", "RJ", "RN", "RS", "SC", "SP", "SE", "TO"];
+
+  if (typeof estado !== "string" || estado.trim().length !== 2 || !estados.find((item) => item === estado.toUpperCase())) {
+    throw new Error("Estado Inválido.");
+  }
+
+}
+
 module.exports = {
   emailIsValid,
   signUpNewUser,
@@ -200,4 +209,5 @@ module.exports = {
   phoneValidation,
   cepValidation,
   cpfIsValid,
+  estadoValidation,
 };

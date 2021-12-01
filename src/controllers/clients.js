@@ -22,9 +22,13 @@ async function addClient(req, res) {
     await utilities.emailValidation(email);
     await utilities.cpfValidation(cpf);
     await utilities.phoneValidation(telefone);
-
+    
     if (cep) {
       await utilities.cepValidation(cep);
+    }
+    
+    if (estado) {
+      await utilities.estadoValidation(estado);
     }
 
     const client = await utilities.signUpNewClient(
