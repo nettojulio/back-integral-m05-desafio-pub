@@ -55,7 +55,10 @@ async function checkUserById(idUsuario) {
 }
 
 async function checkClientById(idCliente) {
-  const client = await knex("clientes").where({ id: idCliente }).first().debug();
+  const client = await knex("clientes")
+    .where({ id: idCliente })
+    .first()
+    .debug();
   if (!client) {
     throw new Error("Cliente não encontrado!");
   }
@@ -134,12 +137,13 @@ async function signUpNewClient(
   return client;
 }
 
-async function getAllClients(){
-  const clients = await knex("clientes").select().returning('*').debug();
-  return clients
+async function getAllClients() {
+  const clients = await knex("clientes").select().returning("*").debug();
+  return clients;
 }
 
-async function updateRegisteredClient( idCliente,
+async function updateRegisteredClient(
+  idCliente,
   nome,
   email,
   cpf,
@@ -149,30 +153,47 @@ async function updateRegisteredClient( idCliente,
   complemento,
   bairro,
   cidade,
-  estado,
-  
-  ){
+  estado
+) {
   const client = await knex("clientes")
-  .update({
-    nome: nome,
-    email: email,
-    cpf: cpf,
-    telefone: telefone,
-    cep: cep,
-    endereco: endereco,
-    complemento: complemento,
-    bairro: bairro,
-    cidade: cidade,
-    estado: estado && estado.toUpperCase(),
-  }).where({ id: idCliente })
+    .update({
+      nome: nome,
+      email: email,
+      cpf: cpf,
+      telefone: telefone,
+      cep: cep,
+      endereco: endereco,
+      complemento: complemento,
+      bairro: bairro,
+      cidade: cidade,
+      estado: estado && estado.toUpperCase(),
+    })
+    .where({ id: idCliente })
+    .returning("*")
+    .debug();
+
+  if (!client) {
+    throw new Error("Cliente não atualizado.");
+  }
+
+  return client;
+}
+
+async function addNewBillings (valor, data_vencimento, descricao, status, clientId) {
+  const billing = await knex("cobrancas")
+  .insert({id_cliente: clientId, valor: valor, data_vencimento: data_vencimento, descricao: descricao, status: status})
   .returning("*")
   .debug();
 
-if (!client) {
-  throw new Error("Cliente não atualizado.");
+  if (!billing) {
+    throw new Error("Cobrança não cadastrada.");
+  }
+  return billing
 }
 
-return client;
+async function getAllBillings() {
+  const billings = await knex("cobrancas").select().returning("*").debug();
+  return billings;
 }
 
 async function nameValidation(nome) {
@@ -236,12 +257,67 @@ async function cepValidation(cep) {
 }
 
 async function estadoValidation(estado) {
-  const estados = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RR", "RO", "RJ", "RN", "RS", "SC", "SP", "SE", "TO"];
+  const estados = [
+    "AC",
+    "AL",
+    "AP",
+    "AM",
+    "BA",
+    "CE",
+    "DF",
+    "ES",
+    "GO",
+    "MA",
+    "MT",
+    "MS",
+    "MG",
+    "PA",
+    "PB",
+    "PR",
+    "PE",
+    "PI",
+    "RR",
+    "RO",
+    "RJ",
+    "RN",
+    "RS",
+    "SC",
+    "SP",
+    "SE",
+    "TO",
+  ];
 
-  if (typeof estado !== "string" || estado.trim().length !== 2 || !estados.find((item) => item === estado.toUpperCase())) {
+  if (
+    typeof estado !== "string" ||
+    estado.trim().length !== 2 ||
+    !estados.find((item) => item === estado.toUpperCase())
+  ) {
     throw new Error("Estado Inválido.");
   }
+}
 
+async function valuesValidation(valor) {
+  if (isNaN(valor) || Number(valor) % 1 !== 0 || (typeof valor === "string" && !valor.trim())) {
+    throw new Error ("Informe valores válidos.");
+  }
+}
+
+async function dateValidation(data) {
+  if (isNaN(+ new Date(data))){
+    throw new Error ("Data inválida!");
+  }
+}
+
+async function descriptionValidation(descricao) {
+  if (!descricao.trim()){
+    throw new Error ("Descrição Inválida!");
+  }
+}
+
+async function statusValidation(status) {
+  if (typeof status !== "boolean"){
+    throw new Error ("Status Inválido!");
+  }
 }
 
 module.exports = {
@@ -262,4 +338,10 @@ module.exports = {
   cpfIsValid,
   estadoValidation,
   checkClientById,
+  valuesValidation,
+  dateValidation,
+  descriptionValidation,
+  statusValidation,
+  addNewBillings,
+  getAllBillings,
 };
