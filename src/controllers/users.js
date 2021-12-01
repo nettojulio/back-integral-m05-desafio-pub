@@ -9,7 +9,7 @@ async function userUpdate(req, res) {
   let { nome, email, senha, cpf, telefone } = req.body;
   const { id } = req.user;
 
-  if (!nome && !email && !senha && !cpf && telefone) {
+  if (!nome && !email && !senha && !cpf && !telefone) {
     return res
       .status(404)
       .json("É obrigatório informar ao menos um campo para atualização");
