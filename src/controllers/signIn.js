@@ -13,7 +13,7 @@ async function signIn(req, res) {
     const correctPassword = await bcrypt.compare(senha, user.senha);
 
     if (!correctPassword) {
-      throw new Error ("Email e/ou senha não confere!");
+      return res.status(400).json("Email e/ou senha não confere!");
     }
 
     const token = jwt.sign({ id: user.id }, authToken, { expiresIn: "2h" });
