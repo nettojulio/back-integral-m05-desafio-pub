@@ -139,6 +139,19 @@ async function signUpNewClient(
 
 async function getAllClients() {
   const clients = await knex("clientes").select().returning("*").debug();
+  
+  for (const client of clients ){
+    const billings = await knex("cobrancas").select('id', 'valor','data_vencimento', 'descricao', 'status').returning("*").where({id_cliente: client.id}).debug();
+    for (const billing of billings) {
+      if (!billing.status) {
+        billing.situacao = ((+ new Date()) - (+ new Date(billing.data_vencimento)) < 84600000 ) ? "Pendente" : "Vencida";
+      } else {
+        billing.situacao = "Paga"
+      }
+    }
+    client.cobrancas = billings;
+    client.status_cliente = client.cobrancas.some((item)=> item.situacao === "Vencida") ? "Inadimplente" : "Em dia";
+  }
   return clients;
 }
 
@@ -193,6 +206,20 @@ async function addNewBillings (valor, data_vencimento, descricao, status, client
 
 async function getAllBillings() {
   const billings = await knex("cobrancas").select().returning("*").debug();
+
+  for (const billing of billings){
+   
+    if (!billing.status) {
+      billing.situacao = ((+ new Date()) - (+ new Date(billing.data_vencimento)) < 84600000 ) ? "Pendente" : "Vencida";
+    } else {
+      billing.situacao = "Paga"
+    }
+    
+
+    const clients = await knex("clientes").select('nome').returning("*").where({id: billing.id_cliente}).debug();
+    billing.cliente = clients[0]
+  }
+
   return billings;
 }
 
