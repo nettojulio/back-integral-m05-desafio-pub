@@ -18,8 +18,8 @@ async function addClient(req, res) {
   try {
     await utilities.nameValidation(nome);
     await utilities.emailIsValid(email, "clientes");
-    await utilities.cpfIsValid(cpf, "clientes");
     await utilities.emailValidation(email);
+    await utilities.cpfIsValid(cpf, "clientes");
     await utilities.cpfValidation(cpf);
     await utilities.phoneValidation(telefone);
     
@@ -51,6 +51,16 @@ async function addClient(req, res) {
   }
 }
 
+async function allClients(req, res) {
+  try {
+    const clients = await utilities.getAllClients();
+    return res.json(clients);
+  } catch (error) {
+    return res.status(400).json(error.message);
+  }
+}
+
 module.exports = {
   addClient,
+  allClients
 };

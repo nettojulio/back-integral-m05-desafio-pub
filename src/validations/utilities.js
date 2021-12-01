@@ -126,6 +126,11 @@ async function signUpNewClient(
   return client;
 }
 
+async function getAllClients(){
+  const clients = await knex("clientes").select().returning('*').debug();
+  return clients
+}
+
 async function nameValidation(nome) {
   if (!nome) {
     throw new Error("Nome é uma informação obrigatória.");
@@ -202,6 +207,7 @@ module.exports = {
   checkUserById,
   updateRegisteredUser,
   signUpNewClient,
+  getAllClients,
   nameValidation,
   emailValidation,
   passwordValidation,
