@@ -5,13 +5,15 @@ async function emailIsValid(emailUsuario, database) {
     .where({ email: emailUsuario })
     .first()
     .debug();
+
   if (user) {
-    throw new Error("O email já cadastrado");
+    throw new Error("Email já cadastrado");
   }
 }
 
 async function cpfIsValid(cpfCliente, database) {
   const user = await knex(database).where({ cpf: cpfCliente }).first().debug();
+
   if (user) {
     throw new Error("CPF já cadastrado");
   }
@@ -35,23 +37,76 @@ async function signUpNewUser(nomeUsuario, emailUsuario, senhaUsuario) {
   return user;
 }
 
+async function signUpNewClient(
+  id,
+  nome,
+  email,
+  cpf,
+  telefone,
+  cep,
+  endereco,
+  complemento,
+  bairro,
+  cidade,
+  estado
+) {
+  const client = await knex("clientes")
+    .insert({
+      id_usuario: id,
+      nome: nome,
+      email: email,
+      cpf: cpf,
+      telefone: telefone,
+      cep: cep,
+      endereco: endereco,
+      complemento: complemento,
+      bairro: bairro,
+      cidade: cidade,
+      estado: estado && estado.toUpperCase(),
+    })
+    .returning("*");
+
+  if (!client) {
+    throw new Error("Cliente não cadastrado.");
+  }
+
+  return client;
+}
+
 async function checkUserSignIn(emailUsuario) {
   const user = await knex("usuarios")
     .where({ email: emailUsuario })
     .first()
     .debug();
+
   if (!user) {
     throw new Error("Email e/ou senha não confere!");
   }
+
   return user;
 }
 
 async function checkUserById(idUsuario) {
   const user = await knex("usuarios").where({ id: idUsuario }).first().debug();
+
   if (!user) {
     throw new Error("Usuario não encontrado!");
   }
+
   return user;
+}
+
+async function checkClientById(idCliente) {
+  const client = await knex("clientes")
+    .where({ id: idCliente })
+    .first()
+    .debug();
+
+  if (!client) {
+    throw new Error("Cliente não encontrado!");
+  }
+
+  return client;
 }
 
 async function updateRegisteredUser(
@@ -90,8 +145,8 @@ async function updateRegisteredUser(
   return user[0];
 }
 
-async function signUpNewClient(
-  id,
+async function updateRegisteredClient(
+  idCliente,
   nome,
   email,
   cpf,
@@ -104,8 +159,7 @@ async function signUpNewClient(
   estado
 ) {
   const client = await knex("clientes")
-    .insert({
-      id_usuario: id,
+    .update({
       nome: nome,
       email: email,
       cpf: cpf,
@@ -115,16 +169,127 @@ async function signUpNewClient(
       complemento: complemento,
       bairro: bairro,
       cidade: cidade,
-      estado: estado,
+      estado: estado && estado.toUpperCase(),
     })
-    .returning("*");
+    .where({ id: idCliente })
+    .returning("*")
+    .debug();
 
   if (!client) {
-    throw new Error("Cliente não cadastrado.");
+    throw new Error("Cliente não atualizado.");
   }
 
-  return client;
+  return client[0];
 }
+
+async function getAllClients() {
+  const clients = await knex("clientes")
+    .select(
+      "id",
+      "nome",
+      "email",
+      "cpf",
+      "telefone",
+      "cep",
+      "endereco",
+      "complemento",
+      "bairro",
+      "cidade",
+      "estado"
+    )
+    .returning("*")
+    .debug();
+
+  for (const client of clients) {
+    const billings = await knex("cobrancas")
+      .select("id", "valor", "data_vencimento", "descricao", "status")
+      .returning("*")
+      .where({ id_cliente: client.id })
+      .debug();
+
+    for (const billing of billings) {
+      if (!billing.status) {
+        billing.situacao =
+          +new Date() - +new Date(billing.data_vencimento) < 84600000
+            ? "Pendente"
+            : "Vencida";
+      } else {
+        billing.situacao = "Paga";
+      }
+    }
+
+    client.cobrancas = billings;
+
+    client.status_cliente = client.cobrancas.some(
+      (item) => item.situacao === "Vencida"
+    )
+      ? "Inadimplente"
+      : "Em dia";
+  }
+
+  return clients;
+}
+
+async function getAllBillings() {
+  const billings = await knex("cobrancas")
+    .select(
+      "id",
+      "id_cliente",
+      "valor",
+      "data_vencimento",
+      "descricao",
+      "status"
+    )
+    .returning("*")
+    .debug();
+
+  for (const billing of billings) {
+    if (!billing.status) {
+      billing.situacao =
+        +new Date() - +new Date(billing.data_vencimento) < 84600000
+          ? "Pendente"
+          : "Vencida";
+    } else {
+      billing.situacao = "Paga";
+    }
+
+    const clients = await knex("clientes")
+      .select("nome")
+      .returning("*")
+      .where({ id: billing.id_cliente })
+      .debug();
+    billing.cliente = clients[0];
+  }
+
+  return billings;
+}
+
+async function addNewBillings(
+  valor,
+  data_vencimento,
+  descricao,
+  status,
+  clientId
+) {
+  const billing = await knex("cobrancas")
+    .insert({
+      id_cliente: clientId,
+      valor: valor,
+      data_vencimento: data_vencimento,
+      descricao: descricao,
+      status: status,
+    })
+    .returning("*")
+    .debug();
+
+  if (!billing) {
+    throw new Error("Cobrança não cadastrada.");
+  }
+
+  return billing[0];
+}
+
+/* SEM CONSULTAS AO DB */
 
 async function nameValidation(nome) {
   if (!nome) {
@@ -180,24 +345,102 @@ async function phoneValidation(telefone) {
   }
 }
 
-async function cepValidation(cep) {
+async function zipCodeValidation(cep) {
   if (typeof cep !== "string" || cep.trim().length !== 8 || isNaN(cep)) {
     throw new Error("CEP inválido! CEP é composto por 8 números.");
   }
 }
 
+async function stateValidation(estado) {
+  const estados = [
+    "AC",
+    "AL",
+    "AP",
+    "AM",
+    "BA",
+    "CE",
+    "DF",
+    "ES",
+    "GO",
+    "MA",
+    "MT",
+    "MS",
+    "MG",
+    "PA",
+    "PB",
+    "PR",
+    "PE",
+    "PI",
+    "RR",
+    "RO",
+    "RJ",
+    "RN",
+    "RS",
+    "SC",
+    "SP",
+    "SE",
+    "TO",
+  ];
+
+  if (
+    typeof estado !== "string" ||
+    estado.trim().length !== 2 ||
+    !estados.find((item) => item === estado.toUpperCase())
+  ) {
+    throw new Error("Estado Inválido.");
+  }
+}
+
+async function valuesValidation(valor) {
+  if (
+    isNaN(valor) ||
+    Number(valor) % 1 !== 0 ||
+    (typeof valor === "string" && !valor.trim())
+  ) {
+    throw new Error("Informe valores válidos.");
+  }
+}
+
+async function dateValidation(data) {
+  if (isNaN(+new Date(data))) {
+    throw new Error("Data inválida!");
+  }
+}
+
+async function descriptionValidation(descricao) {
+  if (!descricao.trim()) {
+    throw new Error("Descrição Inválida!");
+  }
+}
+
+async function statusValidation(status) {
+  if (typeof status !== "boolean") {
+    throw new Error("Status Inválido!");
+  }
+}
+
 module.exports = {
   emailIsValid,
+  cpfIsValid,
   signUpNewUser,
+  signUpNewClient,
   checkUserSignIn,
   checkUserById,
+  checkClientById,
   updateRegisteredUser,
-  signUpNewClient,
+  updateRegisteredClient,
+  getAllClients,
+  getAllBillings,
+  addNewBillings,
   nameValidation,
   emailValidation,
   passwordValidation,
   cpfValidation,
   phoneValidation,
-  cepValidation,
-  cpfIsValid,
+  zipCodeValidation,
+  stateValidation,
+  valuesValidation,
+  dateValidation,
+  descriptionValidation,
+  statusValidation,
 };
