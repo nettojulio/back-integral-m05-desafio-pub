@@ -12,19 +12,19 @@ A versão final do código de cada sprint deverá estar na branch principal do r
 
 No fork de vocês, favor alterar este README para adicionar os links correspondentes para os seguintes itens:
 
-**Repositório de Backend**: 
+**Repositório de Backend**: <https://api-teste-desafio.herokuapp.com>
 
-**Repositório de Frontend**: 
+**Repositório de Frontend**:
 
-**URL da aplicação funcionando**: 
+**URL da aplicação funcionando**:
 
 ---
 
-E os itens abaixo, que deverão ser preenchidos apenas após a finalização de todas as sprints do projeto: 
+E os itens abaixo, que deverão ser preenchidos apenas após a finalização de todas as sprints do projeto:
 
-**Pull Request (PR) de Backend**: 
+**Pull Request (PR) de Backend**:
 
-**Pull Request (PR) de Frontend**: 
+**Pull Request (PR) de Frontend**:
 
 Estes Pull Requests (PRs) deverão ser criados a partir da branch principal do fork correspondente de vocês daquela stack tendo como destino o repositório base da stack do desafio.
 
