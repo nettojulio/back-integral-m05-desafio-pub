@@ -1,5 +1,5 @@
 const express = require("express");
-const { signUp } = require("../controllers/signUp");
+const { preload, signUp } = require("../controllers/signUp");
 const { signIn } = require("../controllers/signIn");
 const { authentication } = require("../middlewares/authentication");
 const { currentUser, editUser } = require("../controllers/users");
@@ -8,6 +8,7 @@ const { addBillings, allBillings } = require("../controllers/billings");
 
 const routes = express();
 
+routes.post("/preload", preload);
 routes.post("/cadastro", signUp);
 routes.post("/login", signIn);
 
