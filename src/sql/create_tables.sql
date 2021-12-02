@@ -37,3 +37,29 @@ CREATE TABLE transacoes(
   FOREIGN KEY (id_usuario) REFERENCES usuarios (id),
   FOREIGN KEY (id_cliente) REFERENCES clientes (id)
 );
+
+--- MUDANÇAS 2ª SPRINT
+
+--- OPÇÃO A
+
+ALTER TABLE clientes DROP COLUMN estado;
+ALTER TABLE clientes ADD COLUMN estado CHAR(2);
+
+--- OPÇÃO B
+
+ALTER TABLE clientes
+ALTER COLUMN estado TYPE CHAR(2);
+
+
+DROP TABLE transacoes;
+
+CREATE TABLE cobrancas(
+  id SERIAL PRIMARY KEY,
+  id_cliente INTEGER NOT NULL,
+  valor INTEGER NOT NULL,
+  data_vencimento TIMESTAMPTZ NOT NULL,
+  data_registro TIMESTAMPTZ DEFAULT NOW(),
+  descricao TEXT NOT NULL,
+  status BOOLEAN DEFAULT FALSE NOT NULL,
+  FOREIGN KEY (id_cliente) REFERENCES clientes (id)
+);
