@@ -14,9 +14,9 @@ No fork de vocês, favor alterar este README para adicionar os links corresponde
 
 **Repositório de Backend**: <https://api-teste-desafio.herokuapp.com>
 
-**Repositório de Frontend**:
+**Repositório de Frontend**: <https://desafioapi05.netlify.app/>
 
-**URL da aplicação funcionando**:
+**URL da aplicação funcionando**: <https://desafioapi05.netlify.app/>
 
 ---
 
