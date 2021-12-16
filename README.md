@@ -12,9 +12,9 @@ A versão final do código de cada sprint deverá estar na branch principal do r
 
 No fork de vocês, favor alterar este README para adicionar os links correspondentes para os seguintes itens:
 
-**Repositório de Backend**: <https://api-teste-desafio.herokuapp.com>
+**Repositório de Backend**: <https://github.com/marceloaraujo-x/back-integral-m05-desafio>
 
-**Repositório de Frontend**: <https://desafioapi05.netlify.app/>
+**Repositório de Frontend**: <https://github.com/marceloaraujo-x/front-integral-m05-desafio>
 
 **URL da aplicação funcionando**: <https://desafioapi05.netlify.app/>
 
@@ -22,7 +22,7 @@ No fork de vocês, favor alterar este README para adicionar os links corresponde
 
 E os itens abaixo, que deverão ser preenchidos apenas após a finalização de todas as sprints do projeto:
 
-**Pull Request (PR) de Backend**:
+**Pull Request (PR) de Backend**: <https://github.com/cubos-academy/back-integral-m05-desafio/pull/24>
 
 **Pull Request (PR) de Frontend**:
 
