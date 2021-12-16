@@ -24,7 +24,7 @@ E os itens abaixo, que deverão ser preenchidos apenas após a finalização de 
 
 **Pull Request (PR) de Backend**: <https://github.com/cubos-academy/back-integral-m05-desafio/pull/24>
 
-**Pull Request (PR) de Frontend**:
+**Pull Request (PR) de Frontend**: <https://github.com/cubos-academy/front-integral-m05-desafio/pull/42>
 
 Estes Pull Requests (PRs) deverão ser criados a partir da branch principal do fork correspondente de vocês daquela stack tendo como destino o repositório base da stack do desafio.
 
