@@ -4,7 +4,7 @@ const { signIn } = require("../controllers/signIn");
 const { authentication } = require("../middlewares/authentication");
 const { currentUser, editUser } = require("../controllers/users");
 const { addClient, allClients, editClient } = require("../controllers/clients");
-const { addBillings, allBillings } = require("../controllers/billings");
+const { addBillings, allBillings, editBillings, deleteBillings } = require("../controllers/billings");
 
 const routes = express();
 
@@ -23,5 +23,7 @@ routes.put("/clientes/:id", editClient);
 
 routes.post("/cobrancas/:id", addBillings);
 routes.get("/cobrancas", allBillings);
+routes.put("/cobrancas/:id", editBillings);
+routes.delete("/cobrancas/:id", deleteBillings);
 
 module.exports = routes;
