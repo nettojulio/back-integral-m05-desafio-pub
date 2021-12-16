@@ -109,6 +109,19 @@ async function checkClientById(idCliente) {
   return client;
 }
 
+async function checkBillingById(idCobranca) {
+  const billing = await knex("cobrancas")
+    .where({ id: idCobranca })
+    .first()
+    .debug();
+
+  if (!billing) {
+    throw new Error("Cobrança não encontrada!");
+  }
+
+  return billing;
+}
+
 async function updateRegisteredUser(
   nome,
   email,
@@ -180,6 +193,31 @@ async function updateRegisteredClient(
   }
 
   return client[0];
+}
+
+async function updateRegisteredBillings(
+  valor,
+  data_vencimento,
+  descricao,
+  status,
+  idCobranca
+) {
+  const billing = await knex("cobrancas")
+    .update({
+      valor: valor,
+      data_vencimento: data_vencimento,
+      descricao: descricao,
+      status: status,
+    })
+    .where({ id: idCobranca })
+    .returning("*")
+    .debug();
+
+  if (!billing) {
+    throw new Error("Cobrança não atualizada.");
+  }
+
+  return billing[0];
 }
 
 async function getAllClients() {
@@ -287,6 +325,28 @@ async function addNewBillings(
   }
 
   return billing[0];
+}
+
+async function deleteBillings(idCobranca, cobranca) {
+  if (cobranca.status) {
+    throw new Error("Não é peritida exclusão de cobranças pagas!");
+  }
+
+  if (+new Date(cobranca.data_vencimento) - +new Date() + 97200000 < 0) {
+    throw new Error("Não é peritida exclusão de cobranças vencidas!");
+  }
+
+  const billing = await knex("cobrancas")
+    .delete()
+    .where({ id: idCobranca })
+    .returning("*")
+    .debug();
+
+  if (!billing) {
+    throw new Error("Cobrança não excluída.");
+  }
+
+  return billing;
 }
 
 /* SEM CONSULTAS AO DB */
@@ -427,11 +487,14 @@ module.exports = {
   checkUserSignIn,
   checkUserById,
   checkClientById,
+  checkBillingById,
   updateRegisteredUser,
   updateRegisteredClient,
+  updateRegisteredBillings,
   getAllClients,
   getAllBillings,
   addNewBillings,
+  deleteBillings,
   nameValidation,
   emailValidation,
   passwordValidation,
